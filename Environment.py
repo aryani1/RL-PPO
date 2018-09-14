@@ -20,8 +20,8 @@ class Environment:
 
     def __init__(self, n_step, gamma, queue_sync, queue_upd, n_processors, g_counter, env, isGlobal=False): # removed network param
         from   Network import Network
-        from   Agent   import Agent
-        import keras
+        # from   Agent   import Agent
+        # import keras
 
         self.n_step       = n_step
         self.gamma        = gamma

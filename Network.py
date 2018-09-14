@@ -12,7 +12,7 @@ class Network:
 
     def __init__(self, gamma, n_step, queue, n_processors, isGlobal=False):
         import tensorflow as tf
-        import keras
+        # import keras
         from keras import backend as K
 
         self.img_shape_x = 13
@@ -60,7 +60,7 @@ class Network:
         # parameters may need tuning
         loss_v = .5
         loss_e = .01
-        rms_decay = .99
+        # rms_decay = .99
         eps = 1e-10 # just a small number
         eta = 1e-4
 
