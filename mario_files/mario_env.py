@@ -28,9 +28,25 @@ class ActionsDiscretizer(gym.ActionWrapper):
         return self._actions[a].copy()
 
 
+class ProcessRewards(gym.Wrapper):
+    def __init__(self, env):
+        super(ProcessRewards, self).__init__(env)
+        self._max_x = 0
+    
+    def reset(self, **kwargs):
+        self._max_x = 0
+        return self.env.reset(**kwargs)
+    
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        if 'distance' in info:
+            self._max_x = max(self._max_x, info['distance'])
+        return obs, reward, done, info
+
 def make_env():
     ''' function for editing and returning the environment for mario '''
     env = gym.make('SuperMarioBros-1-1-v0')
     env = ActionsDiscretizer(env)
+    env = ProcessRewards(env)
     #env = FrameStack(env, 2)
     return env

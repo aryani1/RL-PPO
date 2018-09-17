@@ -46,7 +46,8 @@ class Model(object):
 
         '''
         Step model is used for sampling experience by the different environments
-        Train model is used to average the experience and update gradients. (A2C)
+        Train model is used to average the experience and update gradients.
+        (A2C Algorithm)
         '''
         step_model  = policy(sess, ob_space, action_space, nenvs, 1, reuse=False)
         train_model = policy(sess, ob_space, action_space, nenvs*nsteps, nsteps, reuse=True)
@@ -64,8 +65,6 @@ class Model(object):
         v_loss_clipped = tf.square(v_pred_clipped - rewards_)
 
         value_loss     = 0.5 * tf.reduce_mean(tf.maximum(v_loss, v_loss_clipped))
-        print(train_model.pi)
-        print(actions_)
         # calculate the loss for the policy
         neglogpac = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=train_model.pi, labels=actions_)
         ratio = tf.exp(oldneglopac_ - neglogpac)
@@ -80,7 +79,6 @@ class Model(object):
 
         # define the total loss
         loss = policy_gradient_loss - entropy * ent_coef + value_loss * v_coef
-        print('LOLOLOL')
         # calculate and apply gradients
         optimizer            = tf.train.AdamOptimizer(learning_rate=lr_)
         gradients, variables = zip(*optimizer.compute_gradients(loss))
@@ -140,7 +138,6 @@ class Runner(AbstractEnvRunner):
             mb_neglopacs.append(neglopacs)
             mb_dones.append(self.dones)
 
-            print(actions)
             self.obs[:], rewards, self.dones, infos = self.env.step(actions)
 
             mb_rewards.append(rewards)
@@ -170,6 +167,7 @@ class Runner(AbstractEnvRunner):
             d = mb_rewards[t] + self.gamma * nextvalues * nextnonterminal - mb_values[t]
             mb_advantages[t] = last_lam = d + self.gamma * self.lam * nextnonterminal * last_lam
         mb_returns = mb_advantages + mb_values
+        print(mb_returns)
         return map(sf01, (mb_obs, mb_actions, mb_returns, mb_values, mb_neglopacs))
             
 def sf01(arr):
@@ -178,6 +176,9 @@ def sf01(arr):
     """
     s = arr.shape
     return arr.swapaxes(0, 1).reshape(s[0] * s[1], *s[2:])
+
+def process_rewards(reward):
+    r = 0
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, v_coef, ent_coef, lr,
           cliprange, max_grad_norm, log_interval):
@@ -252,4 +253,3 @@ def play(policy, env, update):
 
     score = 0
     done = False
-    
