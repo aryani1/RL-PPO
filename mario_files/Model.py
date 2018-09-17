@@ -31,7 +31,7 @@ class Model(object):
         sess = tf.get_default_session()
         
         # Placeholders for variables in the loss function
-        actions_    = tf.placeholder(tf.int32, [None, 12], name='actions_')
+        actions_    = tf.placeholder(tf.int32, [None], name='actions_')
         
         advantages_ = tf.placeholder(tf.float32, [None], name='advantages_')
         rewards_    = tf.placeholder(tf.float32, [None], name='rewards_')
@@ -67,7 +67,7 @@ class Model(object):
         print(train_model.pi)
         print(actions_)
         # calculate the loss for the policy
-        neglogpac = tf.nn.softmax_cross_entropy_with_logits_v2(logits=train_model.pi, labels='actions_')
+        neglogpac = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=train_model.pi, labels=actions_)
         ratio = tf.exp(oldneglopac_ - neglogpac)
 
         pg_loss         = -advantages_ * ratio
@@ -139,7 +139,8 @@ class Runner(AbstractEnvRunner):
             mb_values.append(values)
             mb_neglopacs.append(neglopacs)
             mb_dones.append(self.dones)
-        
+
+            print(actions)
             self.obs[:], rewards, self.dones, infos = self.env.step(actions)
 
             mb_rewards.append(rewards)

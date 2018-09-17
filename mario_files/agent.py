@@ -9,7 +9,7 @@ import mario_env
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 
 def main():
-    nenvs = 2
+    nenvs = 1
     policy   = architecture.PPO
     env_list = []
     for _ in range(nenvs):

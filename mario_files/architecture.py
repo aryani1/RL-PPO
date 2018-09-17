@@ -28,11 +28,14 @@ class PPO(object):
         y = 16
         channels = 1 # 1 color channel
 
-        input_shape = (x, y, channels)
+        #input_shape = (x, y, channels)
+        input_shape = (x, y)
         inputs_     = tf.placeholder(tf.float32, [None, *input_shape], name='input')
 
         with tf.variable_scope("model", reuse = reuse):
-            conv1 = conv_layer(inputs_, 16, 2, 1, gain)
+            #inp_reshape = tf.reshape(inputs_, shape=(None, x,y,channels))
+            inp_reshape = tf.expand_dims(inputs_, 3)
+            conv1 = conv_layer(inp_reshape, 16, 2, 1, gain)
             conv2 = conv_layer(conv1, 32, 1, 1, gain)
 
             flatten = tf.layers.flatten(conv2)

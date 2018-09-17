@@ -23,6 +23,10 @@ class ActionsDiscretizer(gym.ActionWrapper):
 
         self.action_space = gym.spaces.Discrete(len(self._actions))
 
+    # take an action
+    def action(self, a):
+        return self._actions[a].copy()
+
 
 def make_env():
     ''' function for editing and returning the environment for mario '''
