@@ -12,6 +12,7 @@ def main():
     nenvs = 1
     policy   = architecture.PPO
     env_list = []
+
     for _ in range(nenvs):
         env_list.append(mario_env.make_env)
 

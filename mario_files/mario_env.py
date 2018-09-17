@@ -31,16 +31,39 @@ class ActionsDiscretizer(gym.ActionWrapper):
 class ProcessRewards(gym.Wrapper):
     def __init__(self, env):
         super(ProcessRewards, self).__init__(env)
-        self._max_x = 0
+        self._max_x  = 0
+        self._time_  = 400
+        self._score_ = 0
     
     def reset(self, **kwargs):
-        self._max_x = 0
+        self._max_x  = 0
+        self._time_  = 400
+        self._score_ = 0
+
         return self.env.reset(**kwargs)
     
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
+        score_coef   = 0.0001 # tune the score reward
+        time_penalty = 0.1 # for every second that passes, give -'time_penalty' reward
+
+        # Check first if distance is in info, this is mario-specific
         if 'distance' in info:
-            self._max_x = max(self._max_x, info['distance'])
+            score_dif = (info['score'] - self._score_) * score_coef
+            reward += score_dif
+
+            # time penalty every second
+            if info['time'] < self._time_:
+                reward -= time_penalty
+
+            # if mario died
+            if done and info['life'] == 0:
+                reward -= 1
+
+        self._max_x  = max(self._max_x, info['distance'])
+        self._score_ = info['score']
+        self._time_  = info['time']
+
         return obs, reward, done, info
 
 def make_env():
@@ -48,5 +71,6 @@ def make_env():
     env = gym.make('SuperMarioBros-1-1-v0')
     env = ActionsDiscretizer(env)
     env = ProcessRewards(env)
+    env.close()
     #env = FrameStack(env, 2)
     return env
