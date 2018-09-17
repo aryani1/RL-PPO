@@ -23,9 +23,6 @@ class PPO(object):
     def __init__(self, sess, ob_space, action_space, nbatch, nsteps, reuse = False):
         gain = np.sqrt(2) # init kernels
         self.pdtype = make_pdtype(action_space)
-        print('-----')
-        print(action_space)
-
         # mario settings - tiles
         x = 13
         y = 16
@@ -42,7 +39,7 @@ class PPO(object):
 
             fc1 = fc_layer(flatten, 128, gain=gain)
             self.pd, self.pi = self.pdtype.pdfromlatent(fc1, init_scale=0.01)
-
+            print(self.pi)
             v = fc_layer(fc1, 1, activation_fn=None)[:, 0]
     
         self.initial_state = None
@@ -54,7 +51,6 @@ class PPO(object):
 
         # Function use to take a step returns action to take and V(s)
         def step(state_in, *_args, **_kwargs):
-
             # return a0, v(s), neglogp0
             return sess.run([action, v, neglog_action], {inputs_: state_in})
 

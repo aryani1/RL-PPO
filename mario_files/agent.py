@@ -4,18 +4,16 @@ import gym
 
 import Model
 import architecture
+import mario_env
 
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
-
-def env_fn():
-    return gym.make('SuperMarioBros-1-1-v0')
 
 def main():
     nenvs = 2
     policy   = architecture.PPO
     env_list = []
     for _ in range(nenvs):
-        env_list.append(env_fn)
+        env_list.append(mario_env.make_env)
 
     with tf.Session():
         Model.learn(policy=policy,

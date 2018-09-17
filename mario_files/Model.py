@@ -31,10 +31,11 @@ class Model(object):
         sess = tf.get_default_session()
         
         # Placeholders for variables in the loss function
-        actions_   = tf.placeholder(tf.int32, [None], name='actions_')
+        actions_    = tf.placeholder(tf.int32, [None, 12], name='actions_')
+        
         advantages_ = tf.placeholder(tf.float32, [None], name='advantages_')
-        rewards_   = tf.placeholder(tf.float32, [None], name='rewards_')
-        lr_        = tf.placeholder(tf.float32, name='learning_rate_')
+        rewards_    = tf.placeholder(tf.float32, [None], name='rewards_')
+        lr_         = tf.placeholder(tf.float32, name='learning_rate_')
 
         # old actor
         oldneglopac_ = tf.placeholder(tf.float32, [None], name='oldneglopac_')
@@ -63,9 +64,10 @@ class Model(object):
         v_loss_clipped = tf.square(v_pred_clipped - rewards_)
 
         value_loss     = 0.5 * tf.reduce_mean(tf.maximum(v_loss, v_loss_clipped))
-
+        print(train_model.pi)
+        print(actions_)
         # calculate the loss for the policy
-        neglogpac = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=train_model.pi, labels='actions_')
+        neglogpac = tf.nn.softmax_cross_entropy_with_logits_v2(logits=train_model.pi, labels='actions_')
         ratio = tf.exp(oldneglopac_ - neglogpac)
 
         pg_loss         = -advantages_ * ratio
@@ -78,7 +80,7 @@ class Model(object):
 
         # define the total loss
         loss = policy_gradient_loss - entropy * ent_coef + value_loss * v_coef
-
+        print('LOLOLOL')
         # calculate and apply gradients
         optimizer            = tf.train.AdamOptimizer(learning_rate=lr_)
         gradients, variables = zip(*optimizer.compute_gradients(loss))
@@ -91,7 +93,6 @@ class Model(object):
 
             # normalize the advantages (?)
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
-            
             data_dict = {train_model.inputs_: s,
                          actions_ : a,
                          advantages_ : advantages,
@@ -190,8 +191,8 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, v_coef, ent_coef, lr
         ob_space = env.observation_space
 
         # try out different action space
-        #ac_space = env.action_space
-        ac_space = gym.spaces.Discrete(6)
+        ac_space = env.action_space
+        #ac_space = gym.spaces.Discrete(6)
 
         # set the batch size
         batch_size = nenvs * nsteps
