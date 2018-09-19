@@ -42,7 +42,6 @@ class PPO(object):
 
             fc1 = fc_layer(flatten, 128, gain=gain)
             self.pd, self.pi = self.pdtype.pdfromlatent(fc1, init_scale=0.01)
-            print(self.pi)
             v = fc_layer(fc1, 1, activation_fn=None)[:, 0]
     
         self.initial_state = None

@@ -1,12 +1,4 @@
 __pycache__/Network.cpython-36.pyc
 __pycache__/Agent.cpython-36.pyc
 __pycache__/Environment.cpython-36.pyc
-mario_files/__pycache__/architecture.cpython-36.pyc
-mario_files/__pycache__/Model.cpython-36.pyc
-mario_files/__pycache__/architecture.cpython-36.pyc
-mario_files/__pycache__/mario_env.cpython-36.pyc
-mario_files/__pycache__/Model.cpython-36.pyc
-mario_files/__pycache__/architecture.cpython-36.pyc
-mario_files/__pycache__/mario_env.cpython-36.pyc
-mario_files/__pycache__/Model.cpython-36.pyc
-mario_files/__pycache__/mario_env.cpython-36.pyc
+*.pyc

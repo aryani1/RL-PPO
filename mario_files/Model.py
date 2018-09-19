@@ -79,6 +79,7 @@ class Model(object):
 
         # define the total loss
         loss = policy_gradient_loss - entropy * ent_coef + value_loss * v_coef
+        
         # calculate and apply gradients
         optimizer            = tf.train.AdamOptimizer(learning_rate=lr_)
         gradients, variables = zip(*optimizer.compute_gradients(loss))
@@ -130,6 +131,7 @@ class Runner(AbstractEnvRunner):
         mb_obs, mb_actions, mb_rewards, mb_values, mb_neglopacs, mb_dones = [],[],[],[],[],[]
 
         for _ in range(self.nsteps):
+            # 'values' and 'neglopacs' = nan when mario dies (?)
             actions, values, neglopacs = self.model.step(self.obs, self.dones)
 
             mb_obs.append(np.copy(self.obs))
@@ -138,12 +140,11 @@ class Runner(AbstractEnvRunner):
             mb_neglopacs.append(neglopacs)
             mb_dones.append(self.dones)
 
-            self.obs[:], rewards, self.dones, infos = self.env.step(actions)
-
+            self.obs[:], rewards, self.dones, info = self.env.step(actions)
             mb_rewards.append(rewards)
 
         mb_obs       = np.asarray(mb_obs, dtype=np.uint8)
-        mb_actions   = np.asarray(mb_actions, dtype=np.int32)
+        mb_actions   = np.asarray(mb_actions)
         mb_rewards   = np.asarray(mb_rewards, dtype=np.float32)
         mb_values    = np.asarray(mb_values, dtype=np.float32)
         mb_neglopacs = np.asarray(mb_neglopacs, dtype=np.float32)
@@ -167,7 +168,7 @@ class Runner(AbstractEnvRunner):
             d = mb_rewards[t] + self.gamma * nextvalues * nextnonterminal - mb_values[t]
             mb_advantages[t] = last_lam = d + self.gamma * self.lam * nextnonterminal * last_lam
         mb_returns = mb_advantages + mb_values
-        print(mb_returns)
+        mb_returns
         return map(sf01, (mb_obs, mb_actions, mb_returns, mb_values, mb_neglopacs))
             
 def sf01(arr):
@@ -176,9 +177,6 @@ def sf01(arr):
     """
     s = arr.shape
     return arr.swapaxes(0, 1).reshape(s[0] * s[1], *s[2:])
-
-def process_rewards(reward):
-    r = 0
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, v_coef, ent_coef, lr,
           cliprange, max_grad_norm, log_interval):
