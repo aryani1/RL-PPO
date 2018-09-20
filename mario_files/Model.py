@@ -56,7 +56,7 @@ class Model(object):
         
         # first calculate the loss for the state value function
         # get the predicted state value and clip it
-        v_pred         = train_model.v 
+        v_pred         = train_model.v
         v_pred_clipped = oldvpred_ + tf.clip_by_value(train_model.v - oldvpred_,
                                                       -cliprange_,
                                                       cliprange_)
@@ -141,6 +141,7 @@ class Runner(AbstractEnvRunner):
             mb_dones.append(self.dones)
 
             self.obs[:], rewards, self.dones, info = self.env.step(actions)
+            print(self.env)
             mb_rewards.append(rewards)
 
         mb_obs       = np.asarray(mb_obs, dtype=np.uint8)
